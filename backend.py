@@ -15,8 +15,6 @@ def get_rss():
         return jsonify({"error": "Missing URL"}), 400
 
     feed = feedparser.parse(rss_url)
-    print(feed)
-    print(feed.feed)
 
     result = {
         "feed": {
