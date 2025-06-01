@@ -18,7 +18,8 @@ def get_rss():
 
     result = {
         "feed": {
-            "title": feed.feed.get("title", "Sin título")
+            "title": feed.feed.get("title", "Sin título"),
+            "link": feed.feed.get("link", "")
         },
         "items": []
     }
