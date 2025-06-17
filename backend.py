@@ -24,7 +24,7 @@ def get_rss():
         "items": []
     }
 
-    for entry in feed.entries[:10]:  # máximo 10 entradas
+    for entry in feed.entries[:20]:  # máximo 20 entradas
         thumbnail = ""
 
         # 1. media:thumbnail
