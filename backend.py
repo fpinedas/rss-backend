@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import feedparser
 import re
-import os
 import requests
+import os
 
 app = Flask(__name__)
 CORS(app)  # Permitir llamadas desde el frontend local
