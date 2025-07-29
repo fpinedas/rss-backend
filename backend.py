@@ -3,6 +3,7 @@ from flask_cors import CORS
 import feedparser
 import re
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app)  # Permitir llamadas desde el frontend local
@@ -10,12 +11,33 @@ CORS(app)  # Permitir llamadas desde el frontend local
 
 @app.route("/rss", methods=["GET"])
 def get_rss():
+    '''
+    Usamos una petición de tipo `requests` para captura la información del RSS.
+
+    Incluimos una cabecera (`headers`) para hacer ver al servidor al que enviamos una
+    solicitud que actuamos como un navegador web.
+    '''
+    # Capturamos la URL solicitada
     rss_url = request.args.get("url")
     if not rss_url:
         return jsonify({"error": "Missing URL"}), 400
 
-    feed = feedparser.parse(rss_url)
+    # Definimos la cabecera de la solicitud
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; FeedReaderBot/1.0; +https://example.com/bot)"
+    }
 
+    # Ejecutamos la solicitud mediante 'requests.get'
+    try:
+        response = requests.get(rss_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        feed = feedparser.parse(response.content)
+    except Exception as e:
+        print(f"[ERROR] Al solicitar el feed: {e}")
+        return jsonify({"error": "No se pudo leer el feed"}), 500
+
+    # Inicializamos el diccionario a devolver, con valores por defecto 
+    # para "title" y "link"
     result = {
         "feed": {
             "title": feed.feed.get("title", "Sin título"),
@@ -50,6 +72,7 @@ def get_rss():
         # Eliminar etiquetas HTML de la descripción
         clean_description = re.sub(r'<[^>]*>', '', raw_description)
 
+        # Añadimos la entrada en la clave "items" del diccionario
         result["items"].append({
             "title": entry.get("title", ""),
             "link": entry.get("link", ""),
@@ -58,6 +81,7 @@ def get_rss():
             "thumbnail": thumbnail
         })
 
+    # Devolvemos el resultado en formato JSON
     return jsonify(result)
 
 
